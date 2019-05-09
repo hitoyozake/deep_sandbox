@@ -22,6 +22,8 @@ def iris_nn():
     from chainer import links as L
     import chainer
 
+    from chainer.datasets import split_dataset_random
+    
     class MyNN(chainer.Chain):
 
       def __init__(self, output_label):
@@ -65,8 +67,7 @@ def iris_nn():
     print("************")
     data = [d[0] for d in data_and_labels]
     labels = [d[1] for d in data_and_labels]
-    print(len(data))
-    print(labels)
+    
 
     """ 
     classnum = np.max(labels)
@@ -82,6 +83,7 @@ def iris_nn():
     train = chainer.datasets.tuple_dataset.TupleDataset(data[:lth], labels[:lth])
     test  = chainer.datasets.tuple_dataset.TupleDataset(data[lth:], labels[lth:])
 
+    train, test = split_dataset_random(chainer.datasets.tuple_dataset.TupleDataset(data, labels))
 
     batch_size = 16
     test_batch_size = 32
