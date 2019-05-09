@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import numpy as np
+
 
 def iris_nn():
     """Untitled1.ipynb
@@ -8,7 +10,6 @@ def iris_nn():
     Original file is located at
         https://colab.research.google.com/drive/1VP7qclm8kv1T7PDDy7l2cW1IjjnlUBCr
     """
-    import numpy as np
     epochnum = 1000
     from sklearn.datasets import load_iris
     iris = load_iris()
@@ -31,19 +32,21 @@ def iris_nn():
         weight_initializer = chainer.initializers.Normal(scale=0.08, dtype=None)
 
         with self.init_scope():
-              self.l1 = L.Linear(4, 64)
-              self.l2 = L.Linear(None, 64)
-              self.l3 = L.Linear(None, 64)
-              self.l4 = L.Linear(None, 64)
-              self.l5 = L.Linear(None, 64)
-              self.fc1 = L.Linear(None, 128)
+              self.l1 = L.Linear(4, 128)
+              self.l2 = L.Linear(None, 128)
+              self.l3 = L.Linear(None, 128)
+              self.l4 = L.Linear(None, 256)
+              self.l5 = L.Linear(None, 512)
+              self.fc1 = L.Linear(None, 256)
               self.fc2 = L.Linear(None, output_label)
 
       def __call__(self, x, t=None, train=True):
-        h1 = self.l1(x)
-        h2 = self.l2(h1)
-        h3 = F.sigmoid(h2)
-        h6 = self.fc1(h3)
+        h1 = F.relu(self.l1(x))
+
+        h2 = F.relu(self.l2(h1))
+        h3 = F.relu(h2)
+        h4 = F.dropout(h3)
+        h6 = self.fc1(h4)
         h7 = self.fc2(h6)
 
         return h7 # y if train else F.softmax(h5)
@@ -83,7 +86,8 @@ def iris_nn():
     train = chainer.datasets.tuple_dataset.TupleDataset(data[:lth], labels[:lth])
     test  = chainer.datasets.tuple_dataset.TupleDataset(data[lth:], labels[lth:])
 
-    train, test = split_dataset_random(chainer.datasets.tuple_dataset.TupleDataset(data, labels))
+    split_at = int(len(data) * 0.7)
+    train, test = split_dataset_random(chainer.datasets.tuple_dataset.TupleDataset(data, labels), split_at)
 
     batch_size = 16
     test_batch_size = 32
